@@ -1,0 +1,42 @@
+#include <iostream>
+#include <eigen3/Eigen/Dense>
+#include <eigen3/Eigen/Core>
+using namespace std;
+using namespace Eigen;
+
+int main() {
+    Matrix<float,5,5> A_55,B_55 ;
+    Matrix<float,5,1> X;
+    Matrix<float,5,1> B;
+    A_55 << 1,0,3,0,1,
+            0,2,1,2,1,
+            3,0,1,3,2,
+            7,2,3,5,1,
+            6,3,2,1,0;
+    B << 12,15,29,52,29;
+
+    cout<<"the matrix A_55 is :\n"<<A_55<<endl;
+    cout<<"the matrix B is :\n"<<B.transpose()<<endl;
+
+    // 方法一直接求逆运算的方法
+    clock_t time_now = clock();
+    X = A_55.inverse()*B;
+    cout<<"the inverse times is :\n"<<(double)1000*(clock()-time_now)/CLOCKS_PER_SEC<<"ms"<<endl;
+    cout<<"the matrix X is :\n"<<X.transpose()<<endl;
+
+    //	方法二使用QR分解求解
+    //QR分解对于非奇异矩阵的分解是唯一的，将矩阵分为一个正交矩阵和一个上三角矩阵的乘积形式，代码使用直接把调用函数即可
+    time_now = clock();
+    X = A_55.colPivHouseholderQr().solve(B);
+    cout<<"the Householder QR times is :\n"<<(double)1000*(clock()-time_now)/CLOCKS_PER_SEC<<"ms"<<endl;
+    cout<<"the matrix X is :\n"<<X.transpose()<<endl;
+
+    // 方法三使用cholesky分解法，
+    // 使用前提是正定矩阵，可以分解为一个L与L的转置的成绩的形式，其中L为下三角矩阵
+    time_now = clock();
+    X = A_55.ldlt().solve(B);
+    cout<<"the L*L.transport times is :\n"<<(double)1000*(clock()-time_now)/CLOCKS_PER_SEC<<"ms"<<endl;
+    cout<<"the matrix X is :\n"<<X.transpose()<<endl;
+    std::cout << "Hello, World!" << std::endl;
+    return 0;
+}
